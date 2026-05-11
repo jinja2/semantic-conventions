@@ -8,9 +8,31 @@ metric_names := { obj |
     group.type = "metric"
     obj := {
     "name": group.metric_name,
+    "const_name": to_const_name(group.metric_name),
     "namespace_prefix": extract_metric_namespace_prefix(group.metric_name),
-    "deprecated": is_property_set(group, "deprecated")
+    "deprecated": is_property_set(group, "deprecated"),
+    "annotations": property_or_null(group, "annotations")
     }
+}
+
+# check that metric constant names do not collide
+deny contains metrics_registry_collision(description, name) if {
+    some i
+    name := metric_names[i].name
+    const_name := metric_names[i].const_name
+    annotations := metric_names[i].annotations
+
+    not annotations["code_generation"]["exclude"]
+
+    collisions := [other.name |
+        other := metric_names[_]
+        other.name != name
+        other.const_name == const_name
+
+        not other.annotations["code_generation"]["exclude"]
+    ]
+    count(collisions) > 0
+    description := sprintf("Metric '%s' has the same constant name '%s' as '%s'.", [name, const_name, collisions])
 }
 
 # check that metric names do not collide with namespaces
