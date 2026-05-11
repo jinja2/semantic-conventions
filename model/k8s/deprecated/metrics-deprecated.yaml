@@ -532,6 +532,10 @@ groups:
     annotations:
       code_generation:
         metric_value_type: double
+        # Excluded from code generation because its generated constant name
+        # collides with `k8s.container.cpu.limit.utilization` after `.`->`_`
+        # normalization. See https://github.com/open-telemetry/semantic-conventions/issues/3705.
+        exclude: true
     stability: development
     deprecated:
       reason: renamed
@@ -562,6 +566,10 @@ groups:
     annotations:
       code_generation:
         metric_value_type: double
+        # Excluded from code generation because its generated constant name
+        # collides with `k8s.container.cpu.request.utilization` after `.`->`_`
+        # normalization. See https://github.com/open-telemetry/semantic-conventions/issues/3705.
+        exclude: true
     stability: development
     deprecated:
       reason: renamed
